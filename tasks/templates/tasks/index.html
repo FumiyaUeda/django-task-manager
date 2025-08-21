@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container my-4">
+
+  <!-- 新規タスク作成フォーム -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      新規タスク作成
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.title.label(class="form-label") }}
+          {{ form.title(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.description.label(class="form-label") }}
+          {{ form.description(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.due_date.label(class="form-label") }}
+          {{ form.due_date(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-success">追加</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- タスク一覧 -->
+  <h3 class="mb-3">タスク一覧</h3>
+  <div class="row">
+    {% for task in tasks %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ task.title }}</h5>
+          <p class="card-text text-muted">{{ task.description }}</p>
+          <p class="card-text">
+            <small class="text-secondary">期限: {{ task.due_date }}</small>
+          </p>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">編集</a>
+          <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-outline-danger">削除</a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">まだタスクはありません。</p>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}

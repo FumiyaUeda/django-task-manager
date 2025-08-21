@@ -1,39 +1,32 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Task
-from .forms import TaskForm
 
-# 一覧
 def task_list(request):
-    tasks = Task.objects.all().order_by('-created_at')
-    return render(request, 'tasks/task_list.html', {'tasks': tasks})
+    tasks = Task.objects.all()
+    return render(request, "tasks/task_list.html", {"tasks": tasks})
 
-# 新規作成
 def task_create(request):
-    if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('task_list')
-    else:
-        form = TaskForm()
-    return render(request, 'tasks/task_form.html', {'form': form})
+    if request.method == "POST":
+        title = request.POST.get("title")
+        if title:
+            Task.objects.create(title=title)
+        return redirect("task_list")
+    return render(request, "tasks/task_form.html")
 
-# 編集
-def task_edit(request, pk):
+def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
-    if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect('task_list')
-    else:
-        form = TaskForm(instance=task)
-    return render(request, 'tasks/task_form.html', {'form': form})
+    if request.method == "POST":
+        title = request.POST.get("title")
+        if title:
+            task.title = title
+            task.save()
+        return redirect("task_list")
+    # 👇 ここを変更
+    return render(request, "tasks/edit_task.html", {"task": task})
 
-# 削除
 def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         task.delete()
-        return redirect('task_list')
-    return render(request, 'tasks/task_confirm_delete.html', {'task': task})
+        return redirect("task_list")
+    return render(request, "tasks/task_confirm_delete.html", {"task": task})
