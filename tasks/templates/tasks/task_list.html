@@ -1,50 +1,77 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card shell-card">
-  <div class="card-body p-4 p-md-5">
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-10">
+    <div class="card shell-card">
+      <div class="card-body p-4 p-md-5">
 
-    <div class="d-flex align-items-end justify-content-between mb-4">
-      <h2 class="page-title mb-0 fs-2">
-        <i class="bi bi-list-check me-2"></i>タスク一覧
-      </h2>
-      <span class="muted small">{{ tasks|length }} 件</span>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h2 class="page-title mb-0 fs-2">
+            <i class="bi bi-check2-square me-2"></i>タスク一覧
+          </h2>
+          <a href="{% url 'task_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>新規作成
+          </a>
+        </div>
+
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>タイトル</th>
+              <th>詳細</th>
+              <th>期限</th> <!-- ★ 追加 -->
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+            <tr class="{% if task.completed %}table-success{% endif %}">
+              <td>{{ task.title }}</td>
+              <td>{{ task.description|default:"-" }}</td>
+              <td>
+                {% if task.due_date %}
+                  {{ task.due_date|date:"Y-m-d" }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td>
+                {% if task.completed %}
+                  <span class="badge bg-success">完了</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">未完了</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-2">
+                  <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form method="post" action="{% url 'task_toggle' task.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-info btn-sm">
+                      {% if task.completed %}
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                      {% else %}
+                        <i class="bi bi-check-lg"></i>
+                      {% endif %}
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">タスクがありません</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
     </div>
-
-    <!-- 追加フォーム -->
-    <form method="post" action="{% url 'task_create' %}" class="mb-4">
-      {% csrf_token %}
-      <div class="input-group input-group-lg">
-        <input type="text" name="title" class="form-control" placeholder="新しいタスクを入力..." autocomplete="off">
-        <button type="submit" class="btn btn-primary btn-lg px-4">
-          <i class="bi bi-plus-lg me-1"></i>追加
-        </button>
-      </div>
-    </form>
-
-    <!-- タスクリスト -->
-    {% if tasks %}
-      <div class="vstack gap-2">
-        {% for task in tasks %}
-          <div class="task-row">
-            <div class="d-flex align-items-center gap-3">
-              <i class="bi bi-circle muted"></i>
-              <span class="task-title">{{ task.title }}</span>
-            </div>
-            <div class="task-actions">
-              <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary btn-sm me-1">
-                <i class="bi bi-pencil-square me-1"></i>編集
-              </a>
-              <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-trash3 me-1"></i>削除
-              </a>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-muted mb-0">タスクはまだありません。上のフォームから追加してください。</p>
-    {% endif %}
   </div>
 </div>
 {% endblock %}
