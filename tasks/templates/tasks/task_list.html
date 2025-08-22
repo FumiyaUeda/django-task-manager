@@ -3,23 +3,31 @@
 {% block content %}
 <div class="container mt-4">
   <h2>✔ タスク一覧</h2>
+
   <div class="mb-3">
     <a href="{% url 'task_create' %}" class="btn btn-primary">＋ 新規作成</a>
   </div>
 
-  <!-- 🔍 検索＋ソートを1つのフォームでまとめる -->
-  <form method="get" class="mb-3 d-flex">
-    <input type="text" name="q" class="form-control me-2"
-           placeholder="タスクを検索" value="{{ query|default:'' }}">
-
-    <select name="sort" class="form-select me-2" style="max-width: 200px;"
-            onchange="this.form.submit()">
+  <!-- 🔍 検索＋ソート（ボタン削除／ソートは右端） -->
+  <form method="get" class="mb-3 d-flex align-items-center gap-2">
+    <input
+      type="text"
+      name="q"
+      class="form-control flex-grow-1"
+      placeholder="タスクを検索"
+      value="{{ query|default:'' }}"
+    />
+    <select
+      name="sort"
+      class="form-select ms-auto"
+      style="max-width: 220px;"
+      onchange="this.form.submit()"
+    >
       <option value="deadline" {% if sort == "deadline" %}selected{% endif %}>期限が近い順</option>
       <option value="deadline_desc" {% if sort == "deadline_desc" %}selected{% endif %}>期限が遠い順</option>
       <option value="title" {% if sort == "title" %}selected{% endif %}>タイトル順</option>
+      <option value="priority" {% if sort == "priority" %}selected{% endif %}>優先度順</option>
     </select>
-
-    <button type="submit" class="btn btn-outline-light">検索 / 適用</button>
   </form>
 
   <table class="table">
@@ -27,6 +35,7 @@
       <tr>
         <th>タイトル</th>
         <th>詳細</th>
+        <th>優先度</th>
         <th>期限</th>
         <th>完了</th>
         <th>操作</th>
@@ -37,27 +46,43 @@
       <tr class="{% if task.is_completed %}table-success{% endif %}">
         <td>{{ task.title }}</td>
         <td>{{ task.detail|default:"-" }}</td>
+
+        <!-- 優先度（アイコン＋テキスト） -->
         <td>
-          {% if task.deadline %}
-          {{ task.deadline|date:"Y-m-d" }}
+          {% if task.priority == "high" %}
+            🔴 高
+          {% elif task.priority == "medium" %}
+            🟡 中
           {% else %}
-          -
+            🟢 低
           {% endif %}
         </td>
+
+        <td>
+          {% if task.deadline %}
+            {{ task.deadline|date:"Y-m-d" }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+
+        <!-- 完了トグル -->
         <td>
           <form method="post" action="{% url 'task_toggle' task.pk %}">
             {% csrf_token %}
             <input type="checkbox" onChange="this.form.submit()" {% if task.is_completed %}checked{% endif %}>
           </form>
         </td>
+
+        <!-- 操作 -->
         <td>
           <div class="d-flex gap-2">
-            <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary btn-sm">
+            <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary btn-sm" title="編集">
               <i class="bi bi-pencil"></i>
             </a>
             <form method="post" action="{% url 'task_delete' task.pk %}" onsubmit="return confirm('本当に削除しますか？');">
               {% csrf_token %}
-              <button type="submit" class="btn btn-outline-danger btn-sm">
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="削除">
                 <i class="bi bi-trash"></i>
               </button>
             </form>
@@ -66,7 +91,7 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="5" class="text-center">タスクがありません</td>
+        <td colspan="6" class="text-center">タスクがありません</td>
       </tr>
       {% endfor %}
     </tbody>
