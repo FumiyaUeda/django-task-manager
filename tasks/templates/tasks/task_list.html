@@ -7,10 +7,19 @@
     <a href="{% url 'task_create' %}" class="btn btn-primary">＋ 新規作成</a>
   </div>
 
-  <!-- 🔍 検索フォーム -->
+  <!-- 🔍 検索＋ソートを1つのフォームでまとめる -->
   <form method="get" class="mb-3 d-flex">
-    <input type="text" name="q" class="form-control me-2" placeholder="タスクを検索" value="{{ request.GET.q }}">
-    <button type="submit" class="btn btn-outline-light">検索</button>
+    <input type="text" name="q" class="form-control me-2"
+           placeholder="タスクを検索" value="{{ query|default:'' }}">
+
+    <select name="sort" class="form-select me-2" style="max-width: 200px;"
+            onchange="this.form.submit()">
+      <option value="deadline" {% if sort == "deadline" %}selected{% endif %}>期限が近い順</option>
+      <option value="deadline_desc" {% if sort == "deadline_desc" %}selected{% endif %}>期限が遠い順</option>
+      <option value="title" {% if sort == "title" %}selected{% endif %}>タイトル順</option>
+    </select>
+
+    <button type="submit" class="btn btn-outline-light">検索 / 適用</button>
   </form>
 
   <table class="table">
@@ -30,9 +39,9 @@
         <td>{{ task.detail|default:"-" }}</td>
         <td>
           {% if task.deadline %}
-            {{ task.deadline|date:"Y-m-d" }}
+          {{ task.deadline|date:"Y-m-d" }}
           {% else %}
-            -
+          -
           {% endif %}
         </td>
         <td>
