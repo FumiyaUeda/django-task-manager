@@ -1,39 +1,51 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-12 col-lg-8">
-    <div class="card shell-card">
-      <div class="card-body p-4 p-md-5">
+<div class="container mt-4">
+  <h2>＋ タスク作成</h2>
+  <form method="post">
+    {% csrf_token %}
 
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h2 class="page-title mb-0 fs-2">
-            <i class="bi bi-plus-square me-2"></i>タスク作成
-          </h2>
-          <a href="{% url 'task_list' %}" class="btn btn-link text-decoration-none">
-            <i class="bi bi-arrow-left-short me-1"></i>一覧へ
-          </a>
-        </div>
-
-        <form method="post" action="">
-          {% csrf_token %}
-          <div class="mb-4">
-            <label class="form-label">タイトル</label>
-            <input type="text" name="title" class="form-control form-control-lg" placeholder="タスクタイトル" autofocus>
-          </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">
-              <i class="bi bi-check-lg me-1"></i>作成
-            </button>
-            <a href="{% url 'task_list' %}" class="btn btn-outline-secondary btn-lg">
-              <i class="bi bi-x-lg me-1"></i>キャンセル
-            </a>
-          </div>
-        </form>
-
-      </div>
+    <div class="mb-3">
+      <label for="id_title" class="form-label">タイトル</label>
+      {{ form.title }}
+      {% if form.title.errors %}
+        <div class="text-danger">{{ form.title.errors }}</div>
+      {% endif %}
     </div>
-  </div>
+
+    <div class="mb-3">
+      <label for="id_detail" class="form-label">詳細</label>
+      {{ form.detail }}
+      {% if form.detail.errors %}
+        <div class="text-danger">{{ form.detail.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_deadline" class="form-label">期限</label>
+      {{ form.deadline }}
+      {% if form.deadline.errors %}
+        <div class="text-danger">{{ form.deadline.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="form-check mb-3">
+      {{ form.is_completed }}
+      <label for="id_is_completed" class="form-check-label">完了</label>
+      {% if form.is_completed.errors %}
+        <div class="text-danger">{{ form.is_completed.errors }}</div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">作成</button>
+    <a href="{% url 'task_list' %}" class="btn btn-secondary">キャンセル</a>
+  </form>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger mt-3">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

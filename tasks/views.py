@@ -1,16 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
 from .models import Task
 from .forms import TaskForm
 
+# タスク削除（一覧のみから実行）
+def task_delete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if request.method == "POST":
+        task.delete()
+        return redirect("task_list")
+    # GET では確認画面を出さず一覧へ戻す
+    return redirect("task_list")
+
 # タスク一覧
 def task_list(request):
-    # 未完 → 完了の順に表示（新しい順）
-    tasks = Task.objects.all().order_by("is_completed", "-id")
+    tasks = Task.objects.all().order_by("-deadline")  # created_at → deadline に修正
     return render(request, "tasks/task_list.html", {"tasks": tasks})
 
-
-# タスク新規作成
+# 新規作成
 def task_create(request):
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -19,10 +25,9 @@ def task_create(request):
             return redirect("task_list")
     else:
         form = TaskForm()
-    return render(request, "tasks/task_form.html", {"form": form})
+    return render(request, "tasks/task_form.html", {"form": form, "is_update": False})
 
-
-# タスク編集
+# 編集
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
     if request.method == "POST":
@@ -32,20 +37,9 @@ def task_update(request, pk):
             return redirect("task_list")
     else:
         form = TaskForm(instance=task)
-    # ← ここで edit_task.html を呼び出すよう統一
-    return render(request, "tasks/edit_task.html", {"form": form, "task": task})
+    return render(request, "tasks/task_form.html", {"form": form, "task": task, "is_update": True})
 
-
-# タスク削除
-def task_delete(request, pk):
-    task = get_object_or_404(Task, pk=pk)
-    if request.method == "POST":
-        task.delete()
-        return redirect("task_list")
-    return render(request, "tasks/task_confirm_delete.html", {"task": task})
-
-
-# 完了/未完トグル
+# 完了切り替え
 def task_toggle(request, pk):
     task = get_object_or_404(Task, pk=pk)
     if request.method == "POST":
