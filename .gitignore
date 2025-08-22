@@ -1,12 +1,26 @@
-﻿venv/
+﻿# 仮想環境
+venv/
+
+# キャッシュ・コンパイルファイル
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py[cod]
+
+# DBファイル
 *.db
 *.sqlite3
+db.sqlite3
+
+# ログ
 *.log
+
+# 翻訳ファイル
 *.pot
-*.py[cod]
+
+# macOS
 .DS_Store
+
+# Pythonパッケージ情報
 *.egg-info/
