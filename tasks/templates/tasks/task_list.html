@@ -7,6 +7,12 @@
     <a href="{% url 'task_create' %}" class="btn btn-primary">＋ 新規作成</a>
   </div>
 
+  <!-- 🔍 検索フォーム -->
+  <form method="get" class="mb-3 d-flex">
+    <input type="text" name="q" class="form-control me-2" placeholder="タスクを検索" value="{{ request.GET.q }}">
+    <button type="submit" class="btn btn-outline-light">検索</button>
+  </form>
+
   <table class="table">
     <thead>
       <tr>
@@ -32,9 +38,7 @@
         <td>
           <form method="post" action="{% url 'task_toggle' task.pk %}">
             {% csrf_token %}
-            <input type="checkbox"
-                   onChange="this.form.submit()"
-                   {% if task.is_completed %}checked{% endif %}>
+            <input type="checkbox" onChange="this.form.submit()" {% if task.is_completed %}checked{% endif %}>
           </form>
         </td>
         <td>
@@ -42,8 +46,7 @@
             <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary btn-sm">
               <i class="bi bi-pencil"></i>
             </a>
-            <form method="post" action="{% url 'task_delete' task.pk %}" 
-                  onsubmit="return confirm('本当に削除しますか？');">
+            <form method="post" action="{% url 'task_delete' task.pk %}" onsubmit="return confirm('本当に削除しますか？');">
               {% csrf_token %}
               <button type="submit" class="btn btn-outline-danger btn-sm">
                 <i class="bi bi-trash"></i>

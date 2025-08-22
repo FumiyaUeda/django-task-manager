@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Task
 from .forms import TaskForm
+from django.db.models import Q
 
 # タスク削除（一覧のみから実行）
 def task_delete(request, pk):
@@ -13,8 +14,15 @@ def task_delete(request, pk):
 
 # タスク一覧
 def task_list(request):
-    tasks = Task.objects.all().order_by("-deadline")  # created_at → deadline に修正
-    return render(request, "tasks/task_list.html", {"tasks": tasks})
+    query = request.GET.get("q")  # 検索キーワード取得
+    tasks = Task.objects.all().order_by("is_completed", "deadline")  # 未完了を先に
+
+    if query:
+        tasks = tasks.filter(
+            Q(title__icontains=query) | Q(detail__icontains=query)
+        )
+
+    return render(request, "tasks/task_list.html", {"tasks": tasks, "query": query})
 
 # 新規作成
 def task_create(request):
